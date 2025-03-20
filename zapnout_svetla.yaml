@@ -1,0 +1,33 @@
+blueprint:
+  name: Zapnout světla v určitou hodinu, pokud je někdo doma
+  description: Tento Blueprint zapne vybraná světla ve zvolený čas, ale jen pokud je někdo doma.
+  domain: automation
+  input:
+    target_lights:
+      name: Světla k zapnutí
+      description: Vyberte světla, která se mají zapnout.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    trigger_time:
+      name: Čas spuštění
+      description: Čas, kdy se světla mají zapnout.
+      selector:
+        time: {}
+
+trigger:
+  - platform: time
+    at: !input trigger_time
+
+condition:
+  - condition: state
+    entity_id: person.jmeno  # Nahraďte ID své osoby v Home Assistant
+    state: "home"
+
+action:
+  - service: light.turn_on
+    target:
+      entity_id: !input target_lights
+
+mode: single
