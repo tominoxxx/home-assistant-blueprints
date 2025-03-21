@@ -1,5 +1,5 @@
 blueprint:
-  name: 🌅 Krásné vstávání – Apple Music
+  name: 🌅 Krásné vstávání – Samsung
   description: Pomalu rozsvítí světla a spustí oblíbenou hudbu na Apple Music přes AirPlay.
   domain: automation
   input:
