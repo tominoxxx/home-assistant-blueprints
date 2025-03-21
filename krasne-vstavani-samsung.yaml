@@ -21,7 +21,5 @@ blueprint:
     apple_music_uri:
       name: Apple Music Playlist URL
       description: Odkaz na Apple Music playlist
-      default: "https://music.apple.com/us/playlist/morning-motivation/pl.u-V9D7mJZC1J"
-    duration:
-      name: Doba rozsvícení (minuty)
-    
+      default: "https://music.apple.com/us/album/therapy-sessions-feat-lingo/1799810836?i=1799810839"
+
