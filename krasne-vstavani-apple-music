@@ -1,0 +1,96 @@
+blueprint:
+  name: 🌅 Krásné vstávání – Apple Music
+  description: Pomalu rozsvítí světla a spustí oblíbenou hudbu na Apple Music přes AirPlay.
+  domain: automation
+  input:
+    trigger_time:
+      name: Čas buzení
+      selector:
+        time:
+    light_target:
+      name: Světlo pro postupné rozsvícení
+      selector:
+        target:
+          entity:
+            domain: light
+    media_player:
+      name: Přehrávač hudby (Apple TV / HomePod)
+      selector:
+        entity:
+          domain: media_player
+    apple_music_uri:
+      name: Apple Music Playlist URL
+      description: Odkaz na Apple Music playlist
+      default: "https://music.apple.com/us/playlist/morning-motivation/pl.u-V9D7mJZC1J"
+    duration:
+      name: Doba rozsvícení (minuty)
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 30
+          unit_of_measurement: min
+    start_volume:
+      name: Počáteční hlasitost (%)
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+    end_volume:
+      name: Maximální hlasitost (%)
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+
+mode: restart
+
+trigger:
+  - platform: time
+    at: !input trigger_time
+
+action:
+  - alias: "Postupné rozsvícení světla"
+    service: light.turn_on
+    target: !input light_target
+    data:
+      brightness_pct: 1
+      transition: 1
+  - repeat:
+      count: "{{ (input_duration * 60) // 5 }}"
+      sequence:
+        - service: light.turn_on
+          target: !input light_target
+          data:
+            brightness_pct: "{{ (repeat.index / (input_duration * 12)) * 100 }}"
+            transition: 5
+        - delay: "00:00:05"
+
+  - alias: "Spuštění Apple Music playlistu přes AirPlay"
+    service: media_player.play_media
+    target:
+      entity_id: !input media_player
+    data:
+      media_content_id: !input apple_music_uri
+      media_content_type: "music"
+
+  - alias: "Nastavení počáteční hlasitosti"
+    service: media_player.volume_set
+    target:
+      entity_id: !input media_player
+    data:
+      volume_level: "{{ start_volume / 100 }}"
+
+  - repeat:
+      count: 10
+      sequence:
+        - service: media_player.volume_set
+          target:
+            entity_id: !input media_player
+          data:
+            volume_level: "{{ (start_volume + ((end_volume - start_volume) * (repeat.index / 10))) / 100 }}"
+        - delay: "00:00:30"
